@@ -1,1 +1,1 @@
-worker: node trello-slack.js
+worker: node index.js
