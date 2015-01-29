@@ -7,6 +7,7 @@ var spotifyPlaylistId = process.env.SPOTIFY_PLAYLIST;
 var slack = require('slack-notify')(process.env.SLACK_URL);
 
 var fs = require('fs');
+var redis = require('redis');
 
 var start = false;
 function grantClient() {
@@ -22,25 +23,24 @@ function grantClient() {
 	  });
 }
 
-
+var client;
 var fetchPlaylist = function() {
 	var lastDate;
 	var writeLastDate;
 	if (process.env.REDISTOGO_URL) {
 		var rtg   = require("url").parse(process.env.REDISTOGO_URL);
-		redis = require("redis").createClient(rtg.port, rtg.hostname);
-		redis.auth(rtg.auth.split(":")[1]);
-		lastDate = new Date(redis.get("lastDate"));
+		var client = redis.createClient(rtg.port, rtg.hostname);
+		client.auth(rtg.auth.split(":")[1]);
+		client.on("error", function (err) {
+        	console.log("Redis - Error " + err);
+    	});
+		client.get("lastDate", function(err, value) {
+			if (!err)
+				lastDate = new Date(value);
+		})
 		writeLastDate = function(date) {
-			redis.set('lastDate', date, function(err, reply){
-				if (err){
-					console.error('Error setting new value to redis\n-----------------------------');
-					console.error(err);
-					process.exit(1);
-				}
-			})
+			client.set('lastDate', date);
 		};
-
 	} else {
 		lastDate = new Date(fs.readFileSync('./last_date.txt').toString() );
 		writeLastDate = function(date) {
@@ -51,6 +51,7 @@ var fetchPlaylist = function() {
 
 	return function() {
 		if (!start) return;
+		console.log("Last fetched at:", lastDate);
 		spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
 		  .then(function(data) {
 		    for (var i in data.tracks.items) {
@@ -74,7 +75,7 @@ var fetchPlaylist = function() {
 slack.onError = function (err) {
   console.log('API error:', err);
 };
-var spotify = slack.extend({
+var slacker = slack.extend({
   username: 'spotify-playlist',
   icon_url: 'http://icons.iconarchive.com/icons/xenatt/the-circle/256/App-Spotify-icon.png',
   unfurl_media : false
@@ -83,7 +84,7 @@ var spotify = slack.extend({
 function post(list_name, list_url, added_by, trackname, artists) {
 	var text = 'New track added by ' + added_by + ' - *' + trackname+'* with '+artists[0].name+' in list <'+list_url+'|'+list_name+'>';
 	console.log(text);
-	spotify({text: text});
+	slacker({text: text});
 }
 
 grantClient();

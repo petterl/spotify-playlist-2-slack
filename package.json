@@ -1,6 +1,6 @@
   {
   "name": "spotify-playlist-2-slack",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Show new playlist entries in a slack channel",
   "main": "index.js",
   "scripts": {
