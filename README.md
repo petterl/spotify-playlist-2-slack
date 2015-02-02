@@ -24,3 +24,6 @@ REDISTOGO_URL=URL
 ## License
 
 MIT. Copyright &copy; 2015 [Petter Sandholdt](https://github.com/petterl)
+
+## Deploy to Heroku
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
