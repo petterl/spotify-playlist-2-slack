@@ -15,9 +15,6 @@
 		},
 		"SPOTIFY_PLAYLIST": {
 			"description":"A Spotify playlist for the user"
-		},
-		"REDISTOGO_URL": {
-			"description":"URL to a RedisToGo database"
 		}
 	},
 	"addons": [
