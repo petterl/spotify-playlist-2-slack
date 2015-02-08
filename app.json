@@ -1,0 +1,26 @@
+{
+	"name": "Spotify playlis to slack",
+	"description": "Show new playlist entries in a slack channel",
+	"website": "https://github.com/petterl/spotify-playlist-2-slack",
+	"repository": "https://github.com/petterl/spotify-playlist-2-slack",
+	"env": {
+		"SPOTIFY_CLIENT_ID": {
+			"description":"A Spotify developer client app id"
+		},
+		"SPOTIFY_CLIENT_SECRET": {
+			"description":"A Spotify developer client app secret"
+		},
+		"SPOTIFY_USERNAME": {
+			"description":"A Spotify username for the user who has the playlist"
+		},
+		"SPOTIFY_PLAYLIST": {
+			"description":"A Spotify playlist for the user"
+		},
+		"REDISTOGO_URL": {
+			"description":"URL to a RedisToGo database"
+		}
+	},
+	"addons": [
+		"redistogo:nano"
+	]
+}
