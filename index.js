@@ -7,8 +7,6 @@ var spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET
 });
-var spotifyUser = process.env.SPOTIFY_USERNAME;
-var spotifyPlaylistId = process.env.SPOTIFY_PLAYLIST;
 
 var lastDate;
 
@@ -61,7 +59,7 @@ function fetchPlaylist() {
   }
 
   console.log('Last fetched at:', lastDate);
-  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
+  spotifyApi.getPlaylist(process.env.SPOTIFY_USERNAME, process.env.SPOTIFY_PLAYLIST, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       for (var i in data.tracks.items) {
         var date = new Date(data.tracks.items[i].added_at);
