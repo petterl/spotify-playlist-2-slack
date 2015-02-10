@@ -42,7 +42,6 @@ function grantClient() {
     });
 }
 
-var fetchPlaylist = function() {
 function writeLastDate() {
   lastDate = date;
 
@@ -54,32 +53,31 @@ function writeLastDate() {
   client.set('lastDate', date);
 }
 
+function fetchPlaylist() {
+  if (!start) {
+    return;
   }
 
-  return function() {
-    if (!start) {
-      return;
-    }
-    console.log("Last fetched at:", lastDate);
-    spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
-      .then(function(data) {
-        for (var i in data.tracks.items) {
-          var date = new Date(data.tracks.items[i].added_at);
-          if((lastDate === undefined) || (date > lastDate)) {
-            post(data.name, 
-              data.external_urls.spotify, 
-              data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : "Unknown",
-              data.tracks.items[i].track.name,
-              data.tracks.items[i].track.artists);
-            lastDate = new Date(data.tracks.items[i].added_at);
-            writeLastDate(lastDate);
-          }
+  console.log("Last fetched at:", lastDate);
+  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
+    .then(function(data) {
+      for (var i in data.tracks.items) {
+        var date = new Date(data.tracks.items[i].added_at);
+        if((lastDate === undefined) || (date > lastDate)) {
+          post(data.name, 
+            data.external_urls.spotify, 
+            data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : "Unknown",
+            data.tracks.items[i].track.name,
+            data.tracks.items[i].track.artists);
+          
+          writeLastDate(data.tracks.items[i].added_at);
         }
-      }, function(err) {
-        console.log('Something went wrong!', err);
-      });
+      }
+    }, function(err) {
+      console.log('Something went wrong!', err);
+    });
   };
-};
+}
 
 slack.onError = function (err) {
   console.log('API error:', err);
@@ -97,4 +95,4 @@ function post(list_name, list_url, added_by, trackname, artists) {
 }
 
 grantClient();
-setInterval(fetchPlaylist(), 1000 * 10);
+setInterval(fetchPlaylist, 1000 * 10);
