@@ -33,9 +33,11 @@ function grantClient() {
   spotifyApi.clientCredentialsGrant()
     .then(function(data) {
       console.log('Got new access token, valid for', data.expires_in, 'seconds');
+
       spotifyApi.setAccessToken(data.access_token);
       start = true;
-      setTimeout(grantClient, data.expires_in*1000);
+      
+      setTimeout(grantClient, data.expires_in * 1000);
     }, function(err) {
       console.log('Something went wrong when retrieving an access token', err);
       process.exit(1);
@@ -82,6 +84,7 @@ function fetchPlaylist() {
 slack.onError = function (err) {
   console.log('API error:', err);
 };
+
 var slacker = slack.extend({
   username: 'spotify-playlist',
   icon_url: 'http://icons.iconarchive.com/icons/xenatt/the-circle/256/App-Spotify-icon.png',
@@ -91,7 +94,10 @@ var slacker = slack.extend({
 function post(list_name, list_url, added_by, trackname, artists) {
   var text = 'New track added by ' + added_by + ' - *' + trackname+'* with '+artists[0].name+' in list <'+list_url+'|'+list_name+'>';
   console.log(text);
-  slacker({text: text});
+
+  slacker({
+    text: text
+  });
 }
 
 grantClient();
