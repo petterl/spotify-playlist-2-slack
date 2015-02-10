@@ -1,13 +1,16 @@
+var fs = require('fs');
+var redis = require('redis');
 var SpotifyWebApi = require('spotify-web-api-node');
-var credentianls = {clientId:process.env.SPOTIFY_CLIENT_ID, clientSecret:process.env.SPOTIFY_CLIENT_SECRET};
-var spotifyApi = new SpotifyWebApi(credentianls);
+var slack = require('slack-notify')(process.env.SLACK_URL);
+
+var spotifyApi = new SpotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+});
 var spotifyUser = process.env.SPOTIFY_USERNAME;
 var spotifyPlaylistId = process.env.SPOTIFY_PLAYLIST;
 
-var slack = require('slack-notify')(process.env.SLACK_URL);
 
-var fs = require('fs');
-var redis = require('redis');
 var rtg = require('url').parse(process.env.REDISTOGO_URL);
 var client = redis.createClient(rtg.port, rtg.hostname);
 client.auth(rtg.auth.split(':')[1]);
