@@ -49,7 +49,7 @@ function writeLastDate() {
 
   if (!process.env.REDISTOGO_URL) {
     lastDate = new Date(fs.readFileSync('./last_date.txt').toString() );
-    fs.writeFile("./last_date.txt", date, function() {});
+    fs.writeFile('./last_date.txt', date, function() {});
   }
 
   client.set('lastDate', date);
@@ -60,7 +60,7 @@ function fetchPlaylist() {
     return;
   }
 
-  console.log("Last fetched at:", lastDate);
+  console.log('Last fetched at:', lastDate);
   spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       for (var i in data.tracks.items) {
@@ -68,10 +68,10 @@ function fetchPlaylist() {
         if((lastDate === undefined) || (date > lastDate)) {
           post(data.name, 
             data.external_urls.spotify, 
-            data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : "Unknown",
+            data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : 'Unknown',
             data.tracks.items[i].track.name,
             data.tracks.items[i].track.artists);
-          
+
           writeLastDate(data.tracks.items[i].added_at);
         }
       }
