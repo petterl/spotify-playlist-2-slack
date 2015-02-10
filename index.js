@@ -8,6 +8,21 @@ var slack = require('slack-notify')(process.env.SLACK_URL);
 
 var fs = require('fs');
 var redis = require('redis');
+var rtg = require('url').parse(process.env.REDISTOGO_URL);
+var client = redis.createClient(rtg.port, rtg.hostname);
+client.auth(rtg.auth.split(':')[1]);
+
+client.on('error', function (err) {
+  console.log('Redis - Error ' + err);
+});
+
+client.get('lastDate', function(err, value) {
+  if (err) {
+    console.log('Redis - Error getting lastDate:', err)
+  }
+
+  lastDate = new Date(value);
+});
 
 var start = false;
 function grantClient() {
@@ -23,22 +38,10 @@ function grantClient() {
     });
 }
 
-var client;
 var fetchPlaylist = function() {
   var lastDate;
   var writeLastDate;
   if (process.env.REDISTOGO_URL) {
-    var rtg   = require("url").parse(process.env.REDISTOGO_URL);
-    client = redis.createClient(rtg.port, rtg.hostname);
-    client.auth(rtg.auth.split(":")[1]);
-    client.on("error", function (err) {
-      console.log("Redis - Error " + err);
-    });
-    client.get("lastDate", function(err, value) {
-      if (!err) {
-        lastDate = new Date(value);
-      }
-    });
     writeLastDate = function(date) {
       client.set('lastDate', date);
     };
