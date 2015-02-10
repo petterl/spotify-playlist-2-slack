@@ -1,20 +1,23 @@
 {
-	"name": "Spotify playlis to slack",
+	"name": "Spotify playlist to slack",
 	"description": "Show new playlist entries in a slack channel",
 	"website": "https://github.com/petterl/spotify-playlist-2-slack",
 	"repository": "https://github.com/petterl/spotify-playlist-2-slack",
 	"env": {
+		"SLACK_URL": {
+			"description": "Your Slack WebHook url, something like this: https://yourslackdomain.slack.com/services/hooks/incoming-webhook?token=SomeSecretToken"
+		},
 		"SPOTIFY_CLIENT_ID": {
-			"description":"A Spotify developer client app id"
+			"description": "A Spotify developer client app id"
 		},
 		"SPOTIFY_CLIENT_SECRET": {
-			"description":"A Spotify developer client app secret"
+			"description": "A Spotify developer client app secret"
 		},
 		"SPOTIFY_USERNAME": {
-			"description":"A Spotify username for the user who has the playlist"
+			"description": "A Spotify username for the user who has the playlist"
 		},
 		"SPOTIFY_PLAYLIST": {
-			"description":"A Spotify playlist for the user"
+			"description": "A Spotify playlist for the user"
 		}
 	},
 	"addons": [
