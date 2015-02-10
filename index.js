@@ -15,7 +15,7 @@ var client = redis.createClient(rtg.port, rtg.hostname);
 client.auth(rtg.auth.split(':')[1]);
 
 client.on('error', function (err) {
-  console.log('Redis - Error ' + err);
+  console.log('Redis - Error:' + err);
 });
 
 client.get('lastDate', function(err, value) {
@@ -30,14 +30,14 @@ var start = false;
 function grantClient() {
   spotifyApi.clientCredentialsGrant()
     .then(function(data) {
-      console.log('Got new access token, valid for', data.expires_in, 'seconds');
+      console.log('Spotify - got new access token, valid for', data.expires_in, 'seconds');
 
       spotifyApi.setAccessToken(data.access_token);
       start = true;
       
       setTimeout(grantClient, data.expires_in * 1000);
     }, function(err) {
-      console.log('Something went wrong when retrieving an access token', err);
+      console.log('Spotify - Error retrieving an access token:', err);
       process.exit(1);
     });
 }
@@ -58,7 +58,7 @@ function fetchPlaylist() {
     return;
   }
 
-  console.log('Last fetched at:', lastDate);
+  console.log('Playlist last fetched at:', lastDate);
   spotifyApi.getPlaylist(process.env.SPOTIFY_USERNAME, process.env.SPOTIFY_PLAYLIST, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       for (var i in data.tracks.items) {
@@ -74,13 +74,13 @@ function fetchPlaylist() {
         }
       }
     }, function(err) {
-      console.log('Something went wrong!', err);
+      console.log('Spotify - Error retrieving playlists:', err);
     });
   };
 }
 
 slack.onError = function (err) {
-  console.log('API error:', err);
+  console.log('Slack - Error:', err);
 };
 
 var slacker = slack.extend({
