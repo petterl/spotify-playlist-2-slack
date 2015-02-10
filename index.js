@@ -10,6 +10,7 @@ var spotifyApi = new SpotifyWebApi({
 var spotifyUser = process.env.SPOTIFY_USERNAME;
 var spotifyPlaylistId = process.env.SPOTIFY_PLAYLIST;
 
+var lastDate;
 
 var rtg = require('url').parse(process.env.REDISTOGO_URL);
 var client = redis.createClient(rtg.port, rtg.hostname);
@@ -42,17 +43,16 @@ function grantClient() {
 }
 
 var fetchPlaylist = function() {
-  var lastDate;
-  var writeLastDate;
-  if (process.env.REDISTOGO_URL) {
-    writeLastDate = function(date) {
-      client.set('lastDate', date);
-    };
-  } else {
+function writeLastDate() {
+  lastDate = date;
+
+  if (!process.env.REDISTOGO_URL) {
     lastDate = new Date(fs.readFileSync('./last_date.txt').toString() );
-    writeLastDate = function(date) {
-      fs.writeFile("./last_date.txt", date, function() {});
-    };
+    fs.writeFile("./last_date.txt", date, function() {});
+  }
+
+  client.set('lastDate', date);
+}
 
   }
 
