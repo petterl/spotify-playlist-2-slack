@@ -83,7 +83,6 @@ function fetchPlaylist() {
     }, function(err) {
       console.log('Something went wrong!', err);
     });
-  };
 }
 
 slack.onError = function (err) {
