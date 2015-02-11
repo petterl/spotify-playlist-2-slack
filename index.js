@@ -1,30 +1,37 @@
 var fs = require('fs');
 var redis = require('redis');
-var SpotifyWebApi = require('spotify-web-api-node');
 var slack = require('slack-notify')(process.env.SLACK_URL);
 
+var SpotifyWebApi = require('spotify-web-api-node');
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET
 });
 
+var REDIS_URL = process.env.REDISTOGO_URL;
 var lastDate;
 
-var rtg = require('url').parse(process.env.REDISTOGO_URL);
-var client = redis.createClient(rtg.port, rtg.hostname);
-client.auth(rtg.auth.split(':')[1]);
+if (REDIS_URL) {
+  var rtg = require('url').parse(REDIS_URL);
+  var client = redis.createClient(rtg.port, rtg.hostname);
+  client.auth(rtg.auth.split(':')[1]);
 
-client.on('error', function (err) {
-  console.log('Redis - Error ' + err);
-});
+  client.on('error', function (err) {
+    console.log('Redis - Error:', err);
+  });
 
-client.get('lastDate', function(err, value) {
-  if (err) {
-    console.log('Redis - Error getting lastDate:', err)
-  }
+  client.get('lastDate', function(err, value) {
+    if (err) {
+      console.log('Redis - Error getting lastDate:', err)
+    }
 
-  lastDate = new Date(value);
-});
+    lastDate = new Date(value);
+  });
+} else {
+  fs.readFile('./last_date.txt', {encoding: 'UTF-8'}, function(err, date){
+    lastDate = date ? new Date(date) : void 0;
+  });
+}
 
 var start = false;
 function grantClient() {
@@ -42,15 +49,15 @@ function grantClient() {
     });
 }
 
-function writeLastDate() {
+function writeLastDate(date) {
   lastDate = date;
 
-  if (!process.env.REDISTOGO_URL) {
-    lastDate = new Date(fs.readFileSync('./last_date.txt').toString() );
+  if (REDIS_URL) {
+    client.set('lastDate', date);
+  } else {
     fs.writeFile('./last_date.txt', date, function() {});
   }
 
-  client.set('lastDate', date);
 }
 
 function fetchPlaylist() {
@@ -58,7 +65,7 @@ function fetchPlaylist() {
     return;
   }
 
-  console.log('Last fetched at:', lastDate);
+  console.log('Playlist last song added was at:', lastDate);
   spotifyApi.getPlaylist(process.env.SPOTIFY_USERNAME, process.env.SPOTIFY_PLAYLIST, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       for (var i in data.tracks.items) {
