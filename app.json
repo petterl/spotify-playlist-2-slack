@@ -15,6 +15,9 @@
 		},
 		"SPOTIFY_PLAYLIST": {
 			"description":"A Spotify playlist for the user"
+		},
+		"SLACK_URL": {
+			"description":"Slack Incoming WebHooks URL"
 		}
 	},
 	"addons": [

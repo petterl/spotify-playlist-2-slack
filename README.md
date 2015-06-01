@@ -8,7 +8,7 @@ Show new playlist entries in slack channel
 You need to set these environment variables in heroku or as environ variables for foreman:
 
 ```
-SLACK_URL*=https://yourslackdomain.slack.com/services/hooks/incoming-webhook?token=SomeSecretToken
+SLACK_URL=https://hooks.slack.com/services/*/*/*
 
 SPOTIFY_CLIENT_ID=ClientID
 SPOTIFY_CLIENT_SECRET=ClientSecret
