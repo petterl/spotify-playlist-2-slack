@@ -94,5 +94,20 @@ function post(list_name, list_url, added_by, trackname, artists) {
 	slacker({text: text});
 }
 
+function startWebServer() {
+	var http = require('http');
+
+	var host = process.env.VCAP_APP_HOST || 'localhost';
+	var port = process.env.VCAP_APP_PORT || 1337
+
+	http.createServer(function (req, res) {
+	    res.writeHead(200, {'Content-Type': 'text/html'});
+	    res.end('No functions and features at this place...' + process.version);
+	}).listen(port, null);
+
+	console.log('Server running to provide incoming network connetion for Bluemix at http://' + host + ':' + port + '/');
+}
+
+startWebServer();
 grantClient();
 setInterval(fetchPlaylist(), 1000 * 10);
