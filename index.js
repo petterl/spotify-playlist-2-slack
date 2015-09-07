@@ -63,7 +63,7 @@ var fetchPlaylist = function() {
 		  .then(function(data) {
 		    for (var i in data.tracks.items) {
 		   	  var date = new Date(data.tracks.items[i].added_at);
-		   	  if((lastDate === undefined) || (date > lastDate) || (lastDate == "Invalid Date")) {
+		   	  if(date > lastDate) {
 		   	  	post(data.name,
 		   	  		data.external_urls.spotify,
 		   	  		data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : "Unknown",
@@ -106,6 +106,10 @@ function startWebServer() {
 	}).listen(port, null);
 
 	console.log('Server running to provide incoming network connetion for Bluemix at http://' + host + ':' + port + '/');
+
+	// set the current date as the initial date to avoid writing the whole song history to the slack channel
+	now = new Date();
+	writeLastDate(now);
 }
 
 startWebServer();
