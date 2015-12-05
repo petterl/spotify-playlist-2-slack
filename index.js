@@ -2,7 +2,8 @@ var SpotifyWebApi = require('spotify-web-api-node');
 var credentials = {clientId:process.env.SPOTIFY_CLIENT_ID, clientSecret:process.env.SPOTIFY_CLIENT_SECRET};
 var spotifyApi = new SpotifyWebApi(credentials);
 var spotifyUser = process.env.SPOTIFY_USERNAME;
-var spotifyPlaylistId = process.env.SPOTIFY_PLAYLIST;
+var spotifyPlaylistIds = process.env.SPOTIFY_PLAYLIST.split(",");
+
 
 var slack = require('slack-notify')(process.env.SLACK_URL);
 
@@ -51,27 +52,29 @@ var fetchPlaylist = function() {
 	}
 
 	return function() {
-		if (!start) {
-			return;
-		}
-		console.log("Last fetched at:", lastDate);
-		spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
-		  .then(function(data) {
-		    for (var i in data.tracks.items) {
-		   	  var date = new Date(data.tracks.items[i].added_at);
-		   	  if((lastDate === undefined) || (date > lastDate)) {
-		   	  	post(data.name, 
-		   	  		data.external_urls.spotify, 
-		   	  		data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : "Unknown",
-		   	  		data.tracks.items[i].track.name,
-		   	  		data.tracks.items[i].track.artists);
-		   	  	lastDate = new Date(data.tracks.items[i].added_at);
-		   	  	writeLastDate(lastDate);
-		   	  }
-		   }
-		  }, function(err) {
-		    console.log('Something went wrong!', err);
-		  });
+		for (var playlist in spotifyPlaylistIds) {
+		  if (!start) {
+		  	return;
+		  }
+			console.log("Last fetched at:", lastDate);
+			spotifyApi.getPlaylist(spotifyUser, playlist, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
+			  .then(function(data) {
+			    for (var i in data.tracks.items) {
+			   	  var date = new Date(data.tracks.items[i].added_at);
+			   	  if((lastDate === undefined) || (date > lastDate)) {
+			   	  	post(data.name, 
+			   	  		data.external_urls.spotify, 
+			   	  		data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : "Unknown",
+			   	  		data.tracks.items[i].track.name,
+			   	  		data.tracks.items[i].track.artists);
+			   	  	lastDate = new Date(data.tracks.items[i].added_at);
+			   	  	writeLastDate(lastDate);
+			   	  }
+			    }
+			  }, function(err) {
+			    console.log('Something went wrong!', err);
+			  });
+		};
 	};
 };
 
