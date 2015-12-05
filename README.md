@@ -13,10 +13,10 @@ SLACK_URL*=https://yourslackdomain.slack.com/services/hooks/incoming-webhook?tok
 SPOTIFY_CLIENT_ID=ClientID
 SPOTIFY_CLIENT_SECRET=ClientSecret
 SPOTIFY_USERNAME=SpotifyUsername
-SPOTIFY_PLAYLIST=PlaylistId
+SPOTIFY_PLAYLIST=PlaylistIds, listed as comma-separated values
 ```
 
-If you want to store last fecthed datestamp in redistogo (like on heroku) instead of local file set:
+If you want to store last fetched datestamp in redistogo (like on heroku) instead of local file set:
 ```
 REDISTOGO_URL=URL
 ```
