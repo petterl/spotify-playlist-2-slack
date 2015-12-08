@@ -88,7 +88,11 @@ var slacker = slack.extend({
 });
 
 function post(list_name, list_url, added_by, trackname, artists) {
-	var text = 'New track added by ' + added_by + ' - *' + trackname+'* by '+artists[0].name+' in list <'+list_url+'|'+list_name+'>';
+	if (added_by === 'katemadden58') {
+		var text = 'New track added by ' + added_by + ' - *Last Christmas* by Wham! in list <'+list_url+'|'+list_name+'>';
+	} else {
+		var text = 'New track added by ' + added_by + ' - *' + trackname+'* by '+artists[0].name+' in list <'+list_url+'|'+list_name+'>';
+	}
 	console.log(text);
 	slacker({text: text});
 }
