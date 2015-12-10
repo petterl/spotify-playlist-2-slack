@@ -90,8 +90,6 @@ var slacker = slack.extend({
 function post(list_name, list_url, added_by, trackname, artists) {
 	if (added_by === 'cschimm1') {
 		var text = "New track added by " + added_by + " - *The Chipmunk Song (Christmas Don't Be Late)* by Alvin & The Chipmunks in list <"+list_url+"|"+list_name+">";
-	} else if (added_by === 'katemadden58') {
-		var text = 'New track added by ' + added_by + ' - *Last Christmas* by Wham! in list <'+list_url+'|'+list_name+'>';
 	} else {
 		var text = 'New track added by ' + added_by + ' - *' + trackname+'* by '+artists[0].name+' in list <'+list_url+'|'+list_name+'>';
 	}
