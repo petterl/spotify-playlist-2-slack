@@ -22,6 +22,11 @@ function grantClient() {
 	        process.exit(1);
 	  });
 }
+function debug(msg) {
+	if (process.env.DEBUG === "TRUE") {
+	  console.log('DEBUG: ', msg);
+	}
+}
 
 var client;
 var fetchPlaylist = function() {
@@ -58,6 +63,7 @@ var fetchPlaylist = function() {
 		spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
 		  .then(function(data) {
 		    for (var i in data.tracks.items) {
+		    	  debug(data.tracks.items[i]);
 		   	  var date = new Date(data.tracks.items[i].added_at);
 		   	  if((lastDate === undefined) || (date > lastDate)) {
 		   	  	post(data.name, 
