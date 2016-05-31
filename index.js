@@ -41,7 +41,7 @@ var start = false;
 function grantClient() {
   spotifyApi.clientCredentialsGrant()
     .then(function(data) {
-      console.log('Spotify - got new access token, valid for', data.expires_in, 'seconds', data);
+      console.log('Spotify - got new access token, valid for', data.body.expires_in, 'seconds');
 
       spotifyApi.setAccessToken(data.access_token);
       start = true;
