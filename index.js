@@ -62,32 +62,32 @@ function writeLastDate(date) {
      fs.writeFile('./last_date.txt', date, function() {});
   }
 }
-
+spotify:user:ewige:playlist:6cyxKpRUfyooMjN5xLHw2a
 function fetchPlaylist() {
   if (!start) {
     return;
   }
  
   console.log('Playlist last known song added at:', lastDate);
-  spotifyApi.getPlaylist(process.env.SPOTIFY_USERNAME, process.env.SPOTIFY_PLAYLIST, {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
+  spotifyApi.getPlaylist(process.env.SPOTIFY_USERNAME, process.env.SPOTIFY_PLAYLIST, { limit: 1000, fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       console.log('Spotify - playlist fetched');
+      var date = 0;
       for (var i in data.tracks.items) {
-        var date = new Date(data.tracks.items[i].added_at);
-        console.log('Spotify - last date in playlist', date);
+        date = new Date(data.tracks.items[i].added_at);
         if((lastDate === undefined) || (date > lastDate)) {
           post(data.name, 
             data.external_urls.spotify, 
             data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : 'Unknown',
             data.tracks.items[i].track.name,
             data.tracks.items[i].track.artists);
-
-          writeLastDate(data.tracks.items[i].added_at);
         }
-    }
-  }, function(err) {
-    console.log('Spotify - Error retrieving playlist:', err);
-  });
+      }
+      console.log('Spotify - last date in playlist', date);
+      writeLastDate(date);
+    }, function(err) {
+      console.log('Spotify - Error retrieving playlist:', err);
+    });
 }
 
 slack.onError = function (err) {
