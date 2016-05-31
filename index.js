@@ -75,11 +75,6 @@ function fetchPlaylist() {
       var date = 0;
       for (var i in data.body.tracks.items) {
         date = new Date(data.body.tracks.items[i].added_at);
-        console.log('Track:',i, 
-            data.body.tracks.items[i].track.name,
-            date
-          );
-
         if((lastDate === undefined) || (date > lastDate)) {
           post(data.body.name, 
             data.body.external_urls.spotify, 
@@ -88,6 +83,7 @@ function fetchPlaylist() {
             data.body.tracks.items[i].track.artists);
         }
       }
+      console.log('Spotify - tracks:', data.body.tracks.total, data.body.tracks.next);
       console.log('Spotify - last date in playlist', date);
       writeLastDate(date);
     }, function(err) {
