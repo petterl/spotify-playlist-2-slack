@@ -72,7 +72,7 @@ function fetchPlaylist() {
   spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, { limit: 1000, 
       fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
-      console.log('Spotify - playlist fetched:', data);
+      console.log('Spotify - playlist fetched:', data.body);
       var date = 0;
       for (var i in data.body.tracks.items) {
         date = new Date(data.body.tracks.items[i].added_at);
