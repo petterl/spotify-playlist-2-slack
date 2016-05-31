@@ -1,7 +1,5 @@
-spotify-playlist-2-slack
-========================
-
-Show new playlist entries in slack channel
+# spotify-playlist-2-slack [![Build Status](http://img.shields.io/travis/petterl/spotify-playlist-2-slack.svg?style=flat-square)](https://travis-ci.org/petterl/spotify-playlist-2-slack)
+> show new playlist entries in Slack channel
 
 ## Configuration
 
