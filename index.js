@@ -41,7 +41,7 @@ var start = false;
 function grantClient() {
   spotifyApi.clientCredentialsGrant()
     .then(function(data) {
-      console.log('Spotify - got new access token, valid for', data.expires_in, 'seconds');
+      console.log('Spotify - got new access token, valid for', data.expires_in, 'seconds', data);
 
       spotifyApi.setAccessToken(data.access_token);
       start = true;
@@ -69,9 +69,10 @@ function fetchPlaylist() {
   }
  
   console.log('Playlist last known song added at:', lastDate);
-  spotifyApi.getPlaylist(process.env.SPOTIFY_USERNAME, process.env.SPOTIFY_PLAYLIST, { limit: 1000, fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
+  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, { limit: 1000, 
+      fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
-      console.log('Spotify - playlist fetched');
+      console.log('Spotify - playlist fetched': data);
       var date = 0;
       for (var i in data.tracks.items) {
         date = new Date(data.tracks.items[i].added_at);
