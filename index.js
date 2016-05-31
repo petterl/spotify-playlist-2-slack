@@ -68,7 +68,13 @@ function fetchPlaylist(offset) {
     return;
   }
  
+  if(offset === undefined)
+  {
+    offset = 0
+  }
+
   console.log('Playlist last known song added at:', lastDate);
+  console.log('Spotify fetching with offset:', offset);
   spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, { offset: offset,
       fields: 'tracks.total,tracks.offset,tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
