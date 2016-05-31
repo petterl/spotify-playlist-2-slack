@@ -70,7 +70,7 @@ function fetchPlaylist() {
  
   console.log('Playlist last known song added at:', lastDate);
   spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {
-      fields: 'tracks.total,tracks.next,tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
+      fields: 'tracks.total,tracks.offset,tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       var date = 0;
       for (var i in data.body.tracks.items) {
@@ -83,7 +83,7 @@ function fetchPlaylist() {
             data.body.tracks.items[i].track.artists);
         }
       }
-      console.log('Spotify - tracks:', data.body.tracks.total, data.body.tracks.next);
+      console.log('Spotify - tracks:', data.body.tracks.total, data.body.tracks.offset);
       console.log('Spotify - last date in playlist', date);
       writeLastDate(date);
     }, function(err) {
