@@ -43,7 +43,7 @@ function grantClient() {
     .then(function(data) {
       console.log('Spotify - got new access token, valid for', data.body.expires_in, 'seconds');
 
-      spotifyApi.setAccessToken(data.access_token);
+      spotifyApi.setAccessToken(data.body.access_token);
       start = true;
       
       setTimeout(grantClient, data.expires_in*1000);
