@@ -69,8 +69,8 @@ function fetchPlaylist() {
   }
  
   console.log('Playlist last known song added at:', lastDate);
-  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, { limit: 1000, 
-      fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
+  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {
+      fields: 'tracks.total,tracks.next,tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       var date = 0;
       for (var i in data.body.tracks.items) {
