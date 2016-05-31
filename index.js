@@ -75,7 +75,7 @@ function fetchPlaylist() {
       var date = 0;
       for (var i in data.body.tracks.items) {
         date = new Date(data.body.tracks.items[i].added_at);
-        console.log('Track:', 
+        console.log('Track:',i, 
             data.body.tracks.items[i].track.name,
             date
           );
