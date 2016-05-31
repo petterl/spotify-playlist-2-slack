@@ -70,7 +70,7 @@ function fetchPlaylist() {
  
   console.log('Playlist last known song added at:', lastDate);
   spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, { limit: 1000, 
-      fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),tracks.limit,tracks.total,tracks.next,name,external_urls.spotify'})
+      fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       console.log('Spotify - playlist fetched:', data);
       var date = 0;
