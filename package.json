@@ -5,33 +5,31 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
-    },
+  },
   "dependencies": {
     "node-slack": "^0.0.5",
     "redis": "^0.12.1",
     "url": "^0.10.1",
     "spotify-web-api-node": "^1.3.5",
     "slack-notify": "^0.1.4"
-    },
+  },
   "engines": {
     "node": "0.10.x",
     "npm": "1.3.x"
-    },
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/petterl/spotify-playlist-2-slack.git"
-    },
+  },
   "homepage": "https://github.com/petterl/spotify-playlist-2-slack",
   "keywords": [
-    "node",
     "spotify",
     "playlist",
     "slack"
-    ],
+  ],
   "license": "MIT",
   "author": {
     "name": "Petter Sandholdt",
     "email": "petter@sandholdt.se"
-  },
-  "readmeFilename": "README.md"
+  }
 }
