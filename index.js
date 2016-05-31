@@ -46,7 +46,7 @@ function grantClient() {
       spotifyApi.setAccessToken(data.body.access_token);
       start = true;
       
-      setTimeout(grantClient, data.expires_in*1000);
+      setTimeout(grantClient, data.body.expires_in*1000);
     }, function(err) {
       console.log('Spotify - Error retrieving an access token:', err);
       process.exit(1);
