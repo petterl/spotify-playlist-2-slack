@@ -74,14 +74,14 @@ function fetchPlaylist() {
     .then(function(data) {
       console.log('Spotify - playlist fetched:', data);
       var date = 0;
-      for (var i in data.tracks.items) {
-        date = new Date(data.tracks.items[i].added_at);
+      for (var i in data.body.tracks.items) {
+        date = new Date(data.body.tracks.items[i].added_at);
         if((lastDate === undefined) || (date > lastDate)) {
-          post(data.name, 
-            data.external_urls.spotify, 
-            data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : 'Unknown',
-            data.tracks.items[i].track.name,
-            data.tracks.items[i].track.artists);
+          post(data.body.name, 
+            data.body.external_urls.spotify, 
+            data.body.tracks.items[i].added_by ? data.body.tracks.items[i].added_by.id : 'Unknown',
+            data.body.tracks.items[i].track.name,
+            data.body.tracks.items[i].track.artists);
         }
       }
       console.log('Spotify - last date in playlist', date);
