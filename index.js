@@ -63,13 +63,13 @@ function writeLastDate(date) {
   }
 }
 
-function fetchPlaylist() {
+function fetchPlaylist(offset) {
   if (!start) {
     return;
   }
  
   console.log('Playlist last known song added at:', lastDate);
-  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {
+  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, { offset: offset,
       fields: 'tracks.total,tracks.offset,tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
       var date = 0;
@@ -83,9 +83,14 @@ function fetchPlaylist() {
             data.body.tracks.items[i].track.artists);
         }
       }
-      console.log('Spotify - tracks:', data.body.tracks.total, data.body.tracks.offset);
-      console.log('Spotify - last date in playlist', date);
-      writeLastDate(date);
+      if((lastDate === undefined) || (date > lastDate)) {
+        console.log('Spotify - last date in playlist', date);
+        writeLastDate(date);
+      }
+      if (data.body.tracks.offset < data.body.tracks.total)
+      {
+        fetchPlaylist(data.body.tracks.offset + 100)
+      }
     }, function(err) {
       console.log('Spotify - Error retrieving playlist:', err);
     });
