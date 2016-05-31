@@ -77,7 +77,7 @@ function fetchPlaylist(offset) {
   spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, { offset: offset,
       fields: 'tracks.total,tracks.offset,tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
     .then(function(data) {
-      console.log('Spotify fetching with offset:', offset, 'and got', data.body.tracks.items.count);
+      console.log('Spotify fetching with offset:', offset, 'and got', data.body.tracks.items.length);
       var date = 0;
       for (var i in data.body.tracks.items) {
         date = new Date(data.body.tracks.items[i].added_at);
