@@ -62,7 +62,7 @@ function writeLastDate(date) {
      fs.writeFile('./last_date.txt', date, function() {});
   }
 }
-spotify:user:ewige:playlist:6cyxKpRUfyooMjN5xLHw2a
+
 function fetchPlaylist() {
   if (!start) {
     return;
