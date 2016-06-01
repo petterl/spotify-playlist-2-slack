@@ -88,8 +88,8 @@ function fetchPlaylistTracks(offset) {
     offset = 0;
   }
 
- 
   console.log('Playlist last known song added at:', lastDate);
+
   spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { offset: offset,
       fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
     .then(function(data) {
@@ -108,7 +108,7 @@ function fetchPlaylistTracks(offset) {
         console.log('Spotify - last date in playlist', date);
         writeLastDate(date);
       }
-      if(data.body.total > (offset + 100)) {
+      if(data.body.total >= (offset + 100)) {
         fetchPlaylistTracks(offset + 100)
       }
     }, function(err) {
