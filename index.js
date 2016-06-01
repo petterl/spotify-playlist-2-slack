@@ -66,6 +66,9 @@ function writeLastDate(date) {
 var playlistName;
 var playlistUrl;
 function fetchPlaylistInfo() {
+  if (!start) {
+    return;
+  }
   console.log('Spotify - Fetch playlist info');
   spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'name,external_urls.spotify'})
     .then(function(data) {
@@ -77,12 +80,12 @@ function fetchPlaylistInfo() {
 }
 
 function fetchPlaylistTracks() {
-  if (!start) {
+  if (!start || playlistUrl === undefined) {
     return;
   }
  
   console.log('Playlist last known song added at:', lastDate);
-  spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { limit: 1000,
+  spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { limit: 400,
       fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
     .then(function(data) {
       var date = 0;
@@ -141,5 +144,5 @@ if(runWebServer) {
   startWebServer();
 }
 grantClient();
-fetchPlaylistInfo();
+setInterval(fetchPlaylistInfo, 1000 * 10);
 setInterval(fetchPlaylistTracks, 1000 * 10);
