@@ -17,7 +17,7 @@
 			"description": "A Spotify username for the user who has the playlist"
 		},
 		"SPOTIFY_PLAYLIST": {
-			"description": "A Spotify playlist for the user"
+			"description":"An array of Spotify playlists for the user"
 		}
 	},
 	"addons": [

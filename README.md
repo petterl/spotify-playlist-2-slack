@@ -11,7 +11,7 @@ SLACK_URL=https://hooks.slack.com/services/*/*/*
 SPOTIFY_CLIENT_ID=ClientID
 SPOTIFY_CLIENT_SECRET=ClientSecret
 SPOTIFY_USERNAME=SpotifyUsername
-SPOTIFY_PLAYLIST=PlaylistId
+SPOTIFY_PLAYLIST=PlaylistIds, listed as comma-separated values
 VCAP_APP=true
 ```
 

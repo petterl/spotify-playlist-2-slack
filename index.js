@@ -10,7 +10,7 @@ var spotifyApi = new SpotifyWebApi({
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET
 });
 var spotifyUser = process.env.SPOTIFY_USERNAME;
-var spotifyPlaylistId = process.env.SPOTIFY_PLAYLIST;
+var spotifyPlaylistIds = process.env.SPOTIFY_PLAYLIST.split(",");
 var redisUrl = process.env.REDISTOGO_URL;
 var runWebServer = process.env.VCAP_APP || false;
 
@@ -63,23 +63,6 @@ function writeLastDate(date) {
   }
 }
 
-var playlistName;
-var playlistUrl;
-function fetchPlaylistInfo() {
-  if (!start) {
-    setTimeout(fetchPlaylistInfo, 1000);
-  }
-  console.log('Spotify - Fetch playlist info');
-  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'name,external_urls.spotify'})
-    .then(function(data) {
-      playlistName = data.body.name;
-      playlistUrl = data.body.external_urls.spotify;
-      console.log('Spotify - Playlist:', playlistName, "at", playlistUrl);
-    }, function(err) {
-      console.log('Spotify - Error retrieving playlist info:', err);
-    });
-}
-
 function fetchPlaylistTracks(offset) {
   if (!start || playlistUrl === undefined) {
     return;
@@ -98,7 +81,7 @@ function fetchPlaylistTracks(offset) {
       for (var i in data.body.items) {
         date = new Date(data.body.items[i].added_at);
         if((lastDate === undefined) || (date > lastDate)) {
-          post(playlistName, playlistUrl, 
+          post(playlistName, playlistUrl,
             data.body.items[i].added_by ? data.body.items[i].added_by.id : 'Unknown',
             data.body.items[i].track.name,
             data.body.items[i].track.artists);
