@@ -108,7 +108,7 @@ function fetchPlaylistTracks(offset) {
         console.log('Spotify - last date in playlist', date);
         writeLastDate(date);
       }
-      if(data.body.total > offset + 100) {
+      if(data.body.total > (offset + 100)) {
         fetchPlaylistTracks(offset + 100)
       }
     }, function(err) {
