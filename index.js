@@ -48,7 +48,7 @@ function grantClient() {
       
       setTimeout(grantClient, data.body.expires_in*1000);
     }, function(err) {
-      console.log('Spotify - Error retrieving an access token:', err);
+      console.log('Spotify - Error retrieving an access token using:', process.env.SPOTIFY_CLIENT_SECRET, err);
       process.exit(1);
     });
 }
@@ -63,27 +63,33 @@ function writeLastDate(date) {
   }
 }
 
-function fetchPlaylist(offset) {
+var playlistName;
+var playlistUrl;
+function fetchPlaylistInfo() {
+  console.log('Spotify - Fetch playlist info');
+  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'name,external_urls.spotify'})
+    .then(function(data) {
+      playlistName = data.body.name;
+      playlistUrl = data.body.external_urls.spotify;
+    }, function(err) {
+      console.log('Spotify - Error retrieving playlist info:', err);
+    });
+}
+
+function fetchPlaylistTracks() {
   if (!start) {
     return;
   }
  
-  if(offset === undefined)
-  {
-    offset = 0
-  }
-
   console.log('Playlist last known song added at:', lastDate);
-  spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, { offset: offset,
-      fields: 'tracks.total,tracks.offset,tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
+  spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { limit: 1000,
+      fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
     .then(function(data) {
-      console.log('Spotify fetching with offset:', offset, 'and got', data.body.tracks.items.length);
       var date = 0;
       for (var i in data.body.tracks.items) {
         date = new Date(data.body.tracks.items[i].added_at);
         if((lastDate === undefined) || (date > lastDate)) {
-          post(data.body.name, 
-            data.body.external_urls.spotify, 
+          post(playlistName, playlistUrl, 
             data.body.tracks.items[i].added_by ? data.body.tracks.items[i].added_by.id : 'Unknown',
             data.body.tracks.items[i].track.name,
             data.body.tracks.items[i].track.artists);
@@ -92,10 +98,6 @@ function fetchPlaylist(offset) {
       if((lastDate === undefined) || (date > lastDate)) {
         console.log('Spotify - last date in playlist', date);
         writeLastDate(date);
-      }
-      if (data.body.tracks.offset + data.body.tracks.items.length < data.body.tracks.total)
-      {
-        fetchPlaylist(data.body.tracks.offset + 100)
       }
     }, function(err) {
       console.log('Spotify - Error retrieving playlist:', err);
@@ -139,4 +141,5 @@ if(runWebServer) {
   startWebServer();
 }
 grantClient();
-setInterval(fetchPlaylist, 1000 * 10);
+fetchPlaylistInfo();
+setInterval(fetchPlaylistTracks, 1000 * 10);
