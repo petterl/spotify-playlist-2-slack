@@ -63,33 +63,6 @@ function writeLastDate(date) {
   }
 }
 
-	return function() {
-		for (var iPlaylist = 0; iPlaylist < spotifyPlaylistIds.length; iPlaylist++) {
-		  if (!start) {
-		  	return;
-		  }
-			console.log("Last fetched at:", lastDate);
-			spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistIds[iPlaylist], {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
-			  .then(function(data) {
-			    for (var i in data.tracks.items) {
-			   	  var date = new Date(data.tracks.items[i].added_at);
-			   	  if((lastDate === undefined) || (date > lastDate)) {
-			   	  	post(data.name, 
-			   	  		data.external_urls.spotify, 
-			   	  		data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : "Unknown",
-			   	  		data.tracks.items[i].track.name,
-			   	  		data.tracks.items[i].track.artists);
-			   	  	lastDate = new Date(data.tracks.items[i].added_at);
-			   	  	writeLastDate(lastDate);
-			   	  }
-			    }
-			  }, function(err) {
-			    console.log('Something went wrong!', err);
-			  });
-		};
-	};
-};
-
 function fetchPlaylistTracks(offset) {
   if (!start || playlistUrl === undefined) {
     return;
@@ -108,7 +81,7 @@ function fetchPlaylistTracks(offset) {
       for (var i in data.body.items) {
         date = new Date(data.body.items[i].added_at);
         if((lastDate === undefined) || (date > lastDate)) {
-          post(playlistName, playlistUrl, 
+          post(playlistName, playlistUrl,
             data.body.items[i].added_by ? data.body.items[i].added_by.id : 'Unknown',
             data.body.items[i].track.name,
             data.body.items[i].track.artists);
