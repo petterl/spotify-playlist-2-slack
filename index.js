@@ -95,6 +95,7 @@ function fetchPlaylistTracks(offset) {
       fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
     .then(function(data) {
       console.log('Spotify - Fetched playlist with offset:', offset, "and got", data.body.total);
+      console.log(data.body);
       var date = 0;
       for (var i in data.body.items) {
         date = new Date(data.body.items[i].added_at);
@@ -109,9 +110,7 @@ function fetchPlaylistTracks(offset) {
         console.log('Spotify - last date in playlist', date);
         writeLastDate(date);
       }
-      console.log("total ", total, "comp", offset+100)
       if(data.body.total >= (offset + 100)) {
-        console.log("run again with ", offset+100)
         fetchPlaylistTracks(offset + 100)
       }
     }, function(err) {
