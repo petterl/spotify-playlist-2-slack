@@ -74,6 +74,7 @@ function fetchPlaylistInfo() {
     .then(function(data) {
       playlistName = data.body.name;
       playlistUrl = data.body.external_urls.spotify;
+      console.log('Spotify - Playlist:', playlistName, "at", playlistUrl);
     }, function(err) {
       console.log('Spotify - Error retrieving playlist info:', err);
     });
@@ -95,13 +96,13 @@ function fetchPlaylistTracks(offset) {
     .then(function(data) {
       console.log('Spotify - Fetched playlist with offset:', offset, "and got", data.body.total);
       var date = 0;
-      for (var i in data.body.tracks.items) {
-        date = new Date(data.body.tracks.items[i].added_at);
+      for (var i in data.body.items) {
+        date = new Date(data.body.items[i].added_at);
         if((lastDate === undefined) || (date > lastDate)) {
           post(playlistName, playlistUrl, 
-            data.body.tracks.items[i].added_by ? data.body.tracks.items[i].added_by.id : 'Unknown',
-            data.body.tracks.items[i].track.name,
-            data.body.tracks.items[i].track.artists);
+            data.body.items[i].added_by ? data.body.items[i].added_by.id : 'Unknown',
+            data.body.items[i].track.name,
+            data.body.items[i].track.artists);
         }
       }
       if((lastDate === undefined) || (date > lastDate)) {
