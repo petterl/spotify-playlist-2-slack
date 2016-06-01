@@ -67,7 +67,7 @@ var playlistName;
 var playlistUrl;
 function fetchPlaylistInfo() {
   if (!start) {
-    return;
+    setTimeout(fetchPlaylistInfo, 1000);
   }
   console.log('Spotify - Fetch playlist info');
   spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistId, {fields: 'name,external_urls.spotify'})
@@ -93,6 +93,7 @@ function fetchPlaylistTracks(offset) {
   spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { offset: offset,
       fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
     .then(function(data) {
+      console.log('Spotify - Fetched playlist with offset:', offset, "and got", data.body.total);
       var date = 0;
       for (var i in data.body.tracks.items) {
         date = new Date(data.body.tracks.items[i].added_at);
@@ -152,5 +153,5 @@ if(runWebServer) {
   startWebServer();
 }
 grantClient();
-setInterval(fetchPlaylistInfo, 1000 * 10);
+setTimeout(fetchPlaylistInfo, 1000);
 setInterval(fetchPlaylistTracks, 1000 * 10);
