@@ -79,13 +79,18 @@ function fetchPlaylistInfo() {
     });
 }
 
-function fetchPlaylistTracks() {
+function fetchPlaylistTracks(offset) {
   if (!start || playlistUrl === undefined) {
     return;
   }
+
+  if (offset = undefined) {
+    offset = 0;
+  }
+
  
   console.log('Playlist last known song added at:', lastDate);
-  spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { limit: 400,
+  spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { offset: offset,
       fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
     .then(function(data) {
       var date = 0;
@@ -101,6 +106,9 @@ function fetchPlaylistTracks() {
       if((lastDate === undefined) || (date > lastDate)) {
         console.log('Spotify - last date in playlist', date);
         writeLastDate(date);
+      }
+      if(data.body.total > offset + 100) {
+        fetchPlaylistTracks(offset + 100)
       }
     }, function(err) {
       console.log('Spotify - Error retrieving playlist:', err);
