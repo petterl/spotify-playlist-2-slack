@@ -84,7 +84,7 @@ function fetchPlaylistTracks(offset) {
     return;
   }
 
-  if (offset = undefined) {
+  if (offset === undefined) {
     offset = 0;
   }
 
