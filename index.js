@@ -1,86 +1,108 @@
-var SpotifyWebApi = require('spotify-web-api-node');
-var credentials = {clientId:process.env.SPOTIFY_CLIENT_ID, clientSecret:process.env.SPOTIFY_CLIENT_SECRET};
-var spotifyApi = new SpotifyWebApi(credentials);
-var spotifyUser = process.env.SPOTIFY_USERNAME;
-var spotifyPlaylistIds = process.env.SPOTIFY_PLAYLIST.split(",");
-
-
-var slack = require('slack-notify')(process.env.SLACK_URL);
-
 var fs = require('fs');
 var redis = require('redis');
+var slack = require('slack-notify')(process.env.SLACK_URL);
+
+// ------------------
+
+var SpotifyWebApi = require('spotify-web-api-node');
+var spotifyApi = new SpotifyWebApi({
+  clientId: process.env.SPOTIFY_CLIENT_ID, 
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET
+});
+var spotifyUser = process.env.SPOTIFY_USERNAME;
+var spotifyPlaylistIds = process.env.SPOTIFY_PLAYLIST.split(",");
+var redisUrl = process.env.REDISTOGO_URL;
+var runWebServer = process.env.VCAP_APP || false;
+
+// ------------------
+var lastDate;
+var redisClient;
+
+if (redisUrl) {
+  var rtg = require('url').parse(redisUrl);
+  redisClient = redis.createClient(rtg.port, rtg.hostname);
+  redisClient.auth(rtg.auth.split(":")[1]);
+  
+  redisClient.on('error', function (err) {
+    console.log("Redis - Error " + err);
+  });
+  redisClient.get("lastDate", function(err, value) {
+    if (!err) {
+      lastDate = new Date(value);
+    }
+  });
+} else {
+  fs.readFile('./last_date.txt', {encoding: 'UTF-8'}, function(err, date){
+     lastDate = date ? new Date(date) : void 0;
+  });
+}
 
 var start = false;
 function grantClient() {
-	spotifyApi.clientCredentialsGrant()
-  	.then(function(data) {
-        console.log('Got new access token, valid for', data.expires_in, 'seconds');
-	    spotifyApi.setAccessToken(data.access_token);
-	    start = true;
-	    setTimeout(grantClient, data.expires_in*1000);
-	  }, function(err) {
-	        console.log('Something went wrong when retrieving an access token', err);
-	        process.exit(1);
-	  });
+  spotifyApi.clientCredentialsGrant()
+    .then(function(data) {
+      console.log('Spotify - got new access token, valid for', data.body.expires_in, 'seconds');
+
+      spotifyApi.setAccessToken(data.body.access_token);
+      start = true;
+      
+      setTimeout(grantClient, data.body.expires_in*1000);
+    }, function(err) {
+      console.log('Spotify - Error retrieving an access token using:', process.env.SPOTIFY_CLIENT_SECRET, err);
+      process.exit(1);
+    });
 }
 
-var client;
-var fetchPlaylist = function() {
-	var lastDate;
-	var writeLastDate;
-	if (process.env.REDISTOGO_URL) {
-		var rtg   = require("url").parse(process.env.REDISTOGO_URL);
-		client = redis.createClient(rtg.port, rtg.hostname);
-		client.auth(rtg.auth.split(":")[1]);
-		client.on("error", function (err) {
-        	console.log("Redis - Error " + err);
-    	});
-		client.get("lastDate", function(err, value) {
-			if (!err) {
-				lastDate = new Date(value);
-			}
-		});
-		writeLastDate = function(date) {
-			client.set('lastDate', date);
-		};
-	} else {
-		lastDate = new Date(fs.readFileSync('./last_date.txt').toString() );
-		writeLastDate = function(date) {
-			fs.writeFile("./last_date.txt", date, function() {});
-		};
+function writeLastDate(date) {
+  lastDate = date
 
-	}
+  if (redisUrl) {
+      redisClient.set('lastDate', date);
+  } else {
+     fs.writeFile('./last_date.txt', date, function() {});
+  }
+}
 
-	return function() {
-		for (var iPlaylist = 0; iPlaylist < spotifyPlaylistIds.length; iPlaylist++) {
-		  if (!start) {
-		  	return;
-		  }
-			console.log("Last fetched at:", lastDate);
-			spotifyApi.getPlaylist(spotifyUser, spotifyPlaylistIds[iPlaylist], {fields: 'tracks.items(added_by.id,added_at,track(name,artists.name,album.name)),name,external_urls.spotify'})
-			  .then(function(data) {
-			    for (var i in data.tracks.items) {
-			   	  var date = new Date(data.tracks.items[i].added_at);
-			   	  if((lastDate === undefined) || (date > lastDate)) {
-			   	  	post(data.name, 
-			   	  		data.external_urls.spotify, 
-			   	  		data.tracks.items[i].added_by ? data.tracks.items[i].added_by.id : "Unknown",
-			   	  		data.tracks.items[i].track.name,
-			   	  		data.tracks.items[i].track.artists);
-			   	  	lastDate = new Date(data.tracks.items[i].added_at);
-			   	  	writeLastDate(lastDate);
-			   	  }
-			    }
-			  }, function(err) {
-			    console.log('Something went wrong!', err);
-			  });
-		};
-	};
-};
+function fetchPlaylistTracks(offset) {
+  if (!start || playlistUrl === undefined) {
+    return;
+  }
+
+  if (offset === undefined) {
+    offset = 0;
+  }
+
+  console.log('Playlist last known song added at:', lastDate);
+
+  spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { offset: offset,
+      fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
+    .then(function(data) {
+      var date = 0;
+      for (var i in data.body.items) {
+        date = new Date(data.body.items[i].added_at);
+        if((lastDate === undefined) || (date > lastDate)) {
+          post(playlistName, playlistUrl,
+            data.body.items[i].added_by ? data.body.items[i].added_by.id : 'Unknown',
+            data.body.items[i].track.name,
+            data.body.items[i].track.artists);
+        }
+      }
+      if((lastDate === undefined) || (date > lastDate)) {
+        console.log('Spotify - last date in playlist', date, "saving...");
+        writeLastDate(date);
+      }
+      if(data.body.total >= (offset + 100)) {
+        fetchPlaylistTracks(offset + 100)
+      }
+    }, function(err) {
+      console.log('Spotify - Error retrieving playlist:', err);
+    });
+}
 
 slack.onError = function (err) {
-  console.log('API error:', err);
+  console.log('Slack - Error:', err);
 };
+
 var slacker = slack.extend({
   username: 'spotify-playlist',
   icon_url: 'http://icons.iconarchive.com/icons/xenatt/the-circle/256/App-Spotify-icon.png',
@@ -88,14 +110,31 @@ var slacker = slack.extend({
 });
 
 function post(list_name, list_url, added_by, trackname, artists) {
-	if (added_by === 'cschimm1') {
-		var text = "New track added by " + added_by + " - *The Chipmunk Song (Christmas Don't Be Late)* by Alvin & The Chipmunks in list <"+list_url+"|"+list_name+">";
-	} else {
-		var text = 'New track added by ' + added_by + ' - *' + trackname+'* by '+artists[0].name+' in list <'+list_url+'|'+list_name+'>';
-	}
-	console.log(text);
-	slacker({text: text});
+  var text = 'New track added by ' + added_by + ' - *' + trackname+'* by '+artists[0].name+' in list <'+list_url+'|'+list_name+'>';
+  console.log(text);
+  slacker({text: text});
 }
 
+function startWebServer() {
+  var http = require('http');
+  var host = process.env.VCAP_APP_HOST || 'localhost';
+  var port = process.env.VCAP_APP_PORT || 1337
+
+  http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end('No functions and features at this place...' + process.version);
+  }).listen(port, null);
+  
+  console.log('Server running to provide incoming network connetion for Bluemix at http://' + host + ':' + port + '/');
+
+  // set the current date as the initial date to avoid writing the whole song history to the slack channel
+  now = new Date();
+  writeLastDate(now);
+}
+
+if(runWebServer) {
+  startWebServer();
+}
 grantClient();
-setInterval(fetchPlaylist(), 1000 * 10);
+setTimeout(fetchPlaylistInfo, 1000);
+setInterval(fetchPlaylistTracks, 1000 * 10);
