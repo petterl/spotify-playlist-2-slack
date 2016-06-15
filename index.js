@@ -54,7 +54,7 @@ function grantClient() {
 }
 
 function writeLastDate(date) {
-  lastDate = date
+  lastDate = date;
 
   if (redisUrl) {
       redisClient.set('lastDate', date);
@@ -90,7 +90,7 @@ function fetchPlaylistTracks(offset) {
   }
 
   console.log('Playlist last known song added at:', lastDate);
-  doFetchPlaylistTracks(offset)  
+  doFetchPlaylistTracks(offset);
 }
 
 function doFetchPlaylistTracks(offset) {
@@ -112,7 +112,7 @@ function doFetchPlaylistTracks(offset) {
         writeLastDate(date);
       }
       if(data.body.total >= (offset + 100)) {
-        doFetchPlaylistTracks(offset + 100)
+        doFetchPlaylistTracks(offset + 100);
       }
     }, function(err) {
       console.log('Spotify - Error retrieving playlist:', err);
@@ -138,7 +138,7 @@ function post(list_name, list_url, added_by, trackname, artists) {
 function startWebServer() {
   var http = require('http');
   var host = process.env.VCAP_APP_HOST || 'localhost';
-  var port = process.env.VCAP_APP_PORT || 1337
+  var port = process.env.VCAP_APP_PORT || 1337;
 
   http.createServer(function (req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
@@ -148,7 +148,7 @@ function startWebServer() {
   console.log('Server running to provide incoming network connetion for Bluemix at http://' + host + ':' + port + '/');
 
   // set the current date as the initial date to avoid writing the whole song history to the slack channel
-  now = new Date();
+  var now = new Date();
   writeLastDate(now);
 }
 
