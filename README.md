@@ -37,7 +37,7 @@ MIT. Copyright &copy; 2015 [Petter Sandholdt](https://github.com/petterl)
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
 ## Deploy to Bluemix
-[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/petschni/spotify-playlist-2-slack)
+[![Deploy to Bluemix](https://bluemix.net/deploy/button.png)](https://bluemix.net/deploy?repository=https://github.com/petterl/spotify-playlist-2-slack)
 
 ## Authors
 
