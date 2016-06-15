@@ -46,7 +46,7 @@ function grantClient() {
       spotifyApi.setAccessToken(data.body.access_token);
       start = true;
       
-      setTimeout(grantClient, data.body.expires_in*1000);
+      setTimeout(grantClient, (data.body.expires_in*1000) - 1000);
     }, function(err) {
       console.log('Spotify - Error retrieving an access token using:', process.env.SPOTIFY_CLIENT_SECRET, err);
       process.exit(1);
@@ -90,7 +90,10 @@ function fetchPlaylistTracks(offset) {
   }
 
   console.log('Playlist last known song added at:', lastDate);
+  doFetchPlaylistTracks(offset)  
+}
 
+function doFetchPlaylistTracks(offset) {
   spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { offset: offset,
       fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
     .then(function(data) {
@@ -109,7 +112,7 @@ function fetchPlaylistTracks(offset) {
         writeLastDate(date);
       }
       if(data.body.total >= (offset + 100)) {
-        fetchPlaylistTracks(offset + 100)
+        doFetchPlaylistTracks(offset + 100)
       }
     }, function(err) {
       console.log('Spotify - Error retrieving playlist:', err);
