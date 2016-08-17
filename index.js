@@ -100,7 +100,7 @@ function get_user(id) {
   }
   spotifyApi.getUser(id)
     .then(function(data) {
-      user_cache[id] = data.body.display_name ? id;
+      user_cache[id] = data.body.display_name ? data.body.display_name : id;
       return user_cache[id];
     }, function(err) {
       console.log('Spotify - could not fetch displayname for: ', id, err);
@@ -129,7 +129,7 @@ function doFetchPlaylistTracks(offset) {
         doFetchPlaylistTracks(offset + 100);
       }
     }, function(err) {
-      console.log('Spotify - Error retrieving playlist:', err);
+      console.log('Spotify - Error retrieving playlist at offset:', offset, err);
     });
 }
 
