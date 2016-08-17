@@ -93,6 +93,20 @@ function fetchPlaylistTracks(offset) {
   doFetchPlaylistTracks(offset);
 }
 
+var user_cache = {};
+function get_user(id) {
+  if (user_cache[id]) {
+    return user_cache[id];
+  }
+  spotifyApi.getUser(id)
+    .then(function(data) {
+      user_cache[id] = data.body.display_name ? id;
+      return user_cache[id];
+    }, function(err) {
+      console.log('Spotify - could not fetch displayname for: ', id, err);
+    });
+}
+
 function doFetchPlaylistTracks(offset) {
   spotifyApi.getPlaylistTracks(spotifyUser, spotifyPlaylistId, { offset: offset,
       fields: 'total,items(added_by.id,added_at,track(name,artists.name,album.name))'})
@@ -102,7 +116,7 @@ function doFetchPlaylistTracks(offset) {
         date = new Date(data.body.items[i].added_at);
         if((lastDate === undefined) || (date > lastDate)) {
           post(playlistName, playlistUrl, 
-            data.body.items[i].added_by ? data.body.items[i].added_by.id : 'Unknown',
+            data.body.items[i].added_by ? get_user(data.body.items[i].added_by.id) : 'Unknown',
             data.body.items[i].track.name,
             data.body.items[i].track.artists);
         }
