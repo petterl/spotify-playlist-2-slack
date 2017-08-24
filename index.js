@@ -115,8 +115,8 @@ function doFetchPlaylistTracks(offset) {
       for (var i in data.body.items) {
         date = new Date(data.body.items[i].added_at);
         if((lastDate === undefined) || (date > lastDate)) {
-          post(playlistName, playlistUrl, 
-            data.body.items[i].added_by ? get_user(data.body.items[i].added_by.id) : 'Unknown',
+          post(playlistName, playlistUrl,
+            (data.body.items[i].added_by === undefined) ? get_user(data.body.items[i].added_by.id) : 'Unknown',
             data.body.items[i].track.name,
             data.body.items[i].track.artists);
         }
