@@ -1,6 +1,7 @@
 # spotify-playlist-2-slack
 ========================
-
+mine
+elscine
 [![Code Climate](https://codeclimate.com/github/petterl/spotify-playlist-2-slack/badges/gpa.svg)](https://codeclimate.com/github/petterl/spotify-playlist-2-slack)
 
 Show new playlist entries in slack channel
